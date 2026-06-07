@@ -1,9 +1,11 @@
 node_modules/
 .next/
+next-env.d.ts
 .vercel/
 .env*
 !.env.sample
 .workflow-data/
+.workflow-vitest/
 .quorum-data/
 dist/
 *.log

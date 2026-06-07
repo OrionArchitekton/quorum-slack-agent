@@ -1,0 +1,19 @@
+{
+  "name": "@quorum/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "next dev", "build": "next build", "start": "next start" },
+  "dependencies": {
+    "@quorum/shared": "workspace:*",
+    "@quorum/slack": "workspace:*",
+    "@quorum/workflows": "workspace:*",
+    "@slack/bolt": "^4.7.3",
+    "@vercel/slack-bolt": "^1.4.3",
+    "next": "15.5.19",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "workflow": "4.3.1"
+  },
+  "devDependencies": { "@types/react": "19.1.6", "@types/react-dom": "19.1.5" }
+}
