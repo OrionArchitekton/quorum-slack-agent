@@ -19,7 +19,7 @@
         "command": "/decisions",
         "description": "Ask what we decided about X",
         "usage_hint": "what did we decide about auth?",
-        "url": "https://REPLACE_WITH_DEPLOY_URL/api/slack/events",
+        "url": "https://quorum-slack-agent.vercel.app/api/slack/events",
         "should_escape": false
       }
     ],
@@ -53,7 +53,7 @@
   "settings": {
     "is_mcp_enabled": true,
     "event_subscriptions": {
-      "request_url": "https://REPLACE_WITH_DEPLOY_URL/api/slack/events",
+      "request_url": "https://quorum-slack-agent.vercel.app/api/slack/events",
       "bot_events": [
         "assistant_thread_started",
         "assistant_thread_context_changed",
@@ -64,7 +64,7 @@
     },
     "interactivity": {
       "is_enabled": true,
-      "request_url": "https://REPLACE_WITH_DEPLOY_URL/api/slack/interactions"
+      "request_url": "https://quorum-slack-agent.vercel.app/api/slack/interactions"
     },
     "org_deploy_enabled": false,
     "socket_mode_enabled": false,
