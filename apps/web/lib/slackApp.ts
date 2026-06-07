@@ -23,6 +23,15 @@ const readEnv = (key: string): string | undefined => process.env[key];
  */
 export function getSlackApp(): { app: App; receiver: VercelReceiver } {
   if (!_app || !_receiver) {
+    // TEMP diagnostic (lengths only, no values): confirm what THIS function sees.
+    console.log(
+      "[quorum-init] signLen=",
+      (readEnv("SLACK_SIGNING_SECRET") ?? "").length,
+      "botLen=",
+      (readEnv("SLACK_BOT_TOKEN") ?? "").length,
+      "keys=",
+      Object.keys(process.env).filter((k) => k.startsWith("SLACK_")).join(","),
+    );
     _receiver = new VercelReceiver({
       signingSecret: readEnv("SLACK_SIGNING_SECRET")!,
     });
