@@ -6,6 +6,14 @@ let _receiver: VercelReceiver | undefined;
 let _app: App | undefined;
 
 /**
+ * Read an env var via a dynamic key so the bundler cannot statically inline it
+ * at build time. `process.env.STATIC_LITERAL` can be replaced with a build-time
+ * value (undefined if the build snapshot lacked it); `process.env[variable]` is
+ * always a runtime lookup. This is why the token must be read indirectly.
+ */
+const readEnv = (key: string): string | undefined => process.env[key];
+
+/**
  * Lazily construct the Bolt app + Vercel receiver.
  *
  * Instantiation is deferred (rather than done at module load) because
@@ -16,10 +24,10 @@ let _app: App | undefined;
 export function getSlackApp(): { app: App; receiver: VercelReceiver } {
   if (!_app || !_receiver) {
     _receiver = new VercelReceiver({
-      signingSecret: process.env["SLACK_SIGNING_SECRET"]!,
+      signingSecret: readEnv("SLACK_SIGNING_SECRET")!,
     });
     _app = new App({
-      token: process.env["SLACK_BOT_TOKEN"],
+      token: readEnv("SLACK_BOT_TOKEN"),
       receiver: _receiver,
     });
     registerListeners(_app);
