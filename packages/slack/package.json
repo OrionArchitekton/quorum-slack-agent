@@ -1,0 +1,12 @@
+{
+  "name": "@quorum/slack",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@quorum/shared": "workspace:*",
+    "@ai-sdk/mcp": "^1.0.46",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.3.6"
+  }
+}
