@@ -8,6 +8,11 @@ export const cfg = {
   userToken: () => req("SLACK_USER_TOKEN"),
   logChannel: () => req("DECISION_LOG_CHANNEL_ID"),
   logCanvas: () => req("DECISION_LOG_CANVAS_ID"),
+  nudgeChannels: () =>
+    (process.env["QUORUM_NUDGE_CHANNELS"] ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
 };
 function req(k: string): string {
   const v = process.env[k];

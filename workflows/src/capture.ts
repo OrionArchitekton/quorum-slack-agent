@@ -34,6 +34,12 @@ export async function captureWorkflow(input: {
     channel: input.channel,
     threadTs: input.threadTs,
     blocks: approvalCardBlocks(record, token),
+    metadata: {
+      token,
+      title: record.title,
+      decision: record.decision,
+      rationale: record.rationale,
+    },
   });
 
   const decision = await Promise.race([

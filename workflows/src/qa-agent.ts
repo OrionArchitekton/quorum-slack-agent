@@ -31,7 +31,7 @@ export async function qaWorkflow(question: string) {
   const result = await agent.stream({
     messages: [{ role: "user", content: question }],
     writable: getWritable<UIMessageChunk>(),
-    maxSteps: 6,
+    maxSteps: 5,
   });
   return result.messages;
 }

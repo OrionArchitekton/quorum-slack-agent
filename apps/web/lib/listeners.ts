@@ -2,9 +2,13 @@ import { start, resumeHook } from "workflow/api";
 import { captureWorkflow } from "@quorum/workflows/src/capture.js";
 import { qaWorkflow } from "@quorum/workflows/src/qa-agent.js";
 import { classifyDecisionStep } from "@quorum/workflows/src/steps/classify.js";
+import { cfg } from "@quorum/workflows/src/env.js";
 import type { App } from "@slack/bolt";
 
 let seq = Date.now() % 10000; // demo-grade monotonic id source; can collide across restarts (single-sandbox demo only)
+
+// Per-thread dedup so we never post more than one nudge per thread (single-sandbox demo only).
+const nudgedThreads = new Set<string>();
 
 export function registerListeners(app: App) {
   // Message shortcut: "📌 Capture decision"
@@ -25,8 +29,16 @@ export function registerListeners(app: App) {
   app.event("message", async ({ event, client }) => {
     const e = event as any;
     if (e.subtype || e.bot_id) return;
+    // Channel allowlist. Empty allowlist = nudge disabled (default — never spam).
+    const allowed = cfg.nudgeChannels();
+    if (allowed.length === 0) return;
+    if (!allowed.includes(e.channel)) return;
+    // Per-thread dedup: at most one nudge per thread.
+    const threadKey = `${e.channel}:${e.thread_ts ?? e.ts}`;
+    if (nudgedThreads.has(threadKey)) return;
     const c = await classifyDecisionStep(e.text ?? "");
     if (c.isDecision && c.confidence > 0.7) {
+      nudgedThreads.add(threadKey);
       await client.chat.postEphemeral({
         channel: e.channel,
         user: e.user,
@@ -70,17 +82,94 @@ export function registerListeners(app: App) {
       });
     });
   }
-  // (Edit opens a modal → on submit resumeHook with action:"edit", edited:{...}. MVP: approve/discard.)
+  // Edit → open a modal pre-filled from the card's draft metadata.
+  app.action("quorum_edit", async ({ ack, action, body, client }) => {
+    await ack();
+    const token = (action as any).value;
+    // Pre-fill from message.metadata.event_payload when available (attached by postApprovalCardStep).
+    const payload =
+      (body as any).message?.metadata?.event_payload ?? ({} as Record<string, unknown>);
+    const initTitle = typeof payload.title === "string" ? payload.title : "";
+    const initDecision = typeof payload.decision === "string" ? payload.decision : "";
+    const initRationale = typeof payload.rationale === "string" ? payload.rationale : "";
+    await client.views.open({
+      trigger_id: (body as any).trigger_id,
+      view: {
+        type: "modal",
+        callback_id: "quorum_edit_modal",
+        private_metadata: token,
+        title: { type: "plain_text", text: "Edit decision" },
+        submit: { type: "plain_text", text: "Save" },
+        close: { type: "plain_text", text: "Cancel" },
+        blocks: [
+          {
+            type: "input",
+            block_id: "title",
+            label: { type: "plain_text", text: "Title" },
+            element: {
+              type: "plain_text_input",
+              action_id: "value",
+              initial_value: initTitle,
+            },
+          },
+          {
+            type: "input",
+            block_id: "decision",
+            label: { type: "plain_text", text: "Decision" },
+            element: {
+              type: "plain_text_input",
+              action_id: "value",
+              multiline: true,
+              initial_value: initDecision,
+            },
+          },
+          {
+            type: "input",
+            block_id: "rationale",
+            label: { type: "plain_text", text: "Rationale" },
+            element: {
+              type: "plain_text_input",
+              action_id: "value",
+              multiline: true,
+              initial_value: initRationale,
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  // Edit modal submit → resume the hook with the edited fields.
+  app.view("quorum_edit_modal", async ({ ack, view }) => {
+    await ack();
+    const token = view.private_metadata;
+    const v = view.state.values as any;
+    await resumeHook(token, {
+      action: "edit",
+      edited: {
+        title: v.title?.value?.value ?? "",
+        decision: v.decision?.value?.value ?? "",
+        rationale: v.rationale?.value?.value ?? "",
+      },
+    });
+  });
 
   // Slash /decisions → grounded Q&A
   app.command("/decisions", async ({ command, ack, respond }) => {
     await ack();
-    const run = await start(qaWorkflow, [command.text]);
-    const answer = await run.returnValue;
-    const last = (answer as any[]).at(-1);
-    await respond({
-      response_type: "in_channel",
-      text: typeof last?.content === "string" ? last.content : "See thread for the answer.",
-    });
+    try {
+      const run = await start(qaWorkflow, [command.text]);
+      const answer = await run.returnValue;
+      const last = (answer as any[]).at(-1);
+      await respond({
+        response_type: "in_channel",
+        text: typeof last?.content === "string" ? last.content : "See thread for the answer.",
+      });
+    } catch {
+      await respond({
+        response_type: "ephemeral",
+        text: "Sorry — I couldn't pull that up. Try again.",
+      });
+    }
   });
 }
