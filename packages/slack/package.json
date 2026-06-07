@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "type": "module",
   "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./verify": "./src/verify.ts",
+    "./rts": "./src/rts.ts",
+    "./mcp": "./src/mcp.ts",
+    "./mcp-client": "./src/mcp-client.ts"
+  },
   "dependencies": {
     "@quorum/shared": "workspace:*",
     "@ai-sdk/mcp": "^1.0.46",

@@ -1,22 +1,17 @@
-// Import per Task 0 finding: createMCPClient is the canonical export name in @ai-sdk/mcp v1.x
-import { createMCPClient } from "@ai-sdk/mcp";
-
 export type SlackMcpTools = {
   canvasEdit: (a: { canvas_id: string; markdown: string }) => Promise<any>;
   chatPost: (a: { channel: string; text: string }) => Promise<{ permalink?: string }>;
 };
 
-/** Build an MCP client against Slack's hosted MCP server. Call ONLY inside a "use step". */
-export async function connectSlackMcp(userToken: string) {
-  const client = await createMCPClient({
-    transport: { type: "http", url: "https://mcp.slack.com/mcp",
-      headers: { authorization: `Bearer ${userToken}` } },
-  });
-  const tools = await client.tools();
-  return { client, tools };
-}
-
-/** Pure orchestration — tools injected so it is unit-testable without network. */
+/**
+ * Pure orchestration — tools injected so it is unit-testable without network.
+ * Carries no `@ai-sdk/mcp` dependency, so it is safe to import from the static
+ * module graph that the WDK workflows bundler walks. The actual MCP client
+ * (which pulls @ai-sdk/mcp -> pkce-challenge, incompatible with the workflow
+ * bundler's resolve conditions) lives in ./mcp-client.ts and is imported
+ * dynamically ONLY from inside a "use step" body, where workflow-mode dead-code
+ * elimination removes it from the workflows bundle.
+ */
 export async function fileDecisionViaMcp(
   p: { canvasId: string; channelId: string; canvasMarkdown: string; channelText: string },
   deps: { tools: SlackMcpTools },

@@ -1,4 +1,4 @@
-import { searchContext, type RtsMessage } from "@quorum/slack";
+import { searchContext, type RtsMessage } from "@quorum/slack/rts";
 import type { Citation } from "@quorum/shared";
 import { cfg } from "../env.js";
 

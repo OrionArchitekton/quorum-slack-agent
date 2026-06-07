@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-vi.mock("@quorum/slack", async (orig) => {
+vi.mock("@quorum/slack/rts", async (orig) => {
   const real = await orig<any>();
   return { ...real, searchContext: vi.fn(async (p: any) => ({
     messages: [{ content: "we will use postgres", permalink: "https://x/p1", channel_name: "eng" }],
