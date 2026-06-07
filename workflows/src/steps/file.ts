@@ -19,6 +19,7 @@ export async function fileRecordStep(r: DecisionRecord): Promise<{ logPermalink?
   if (cfg.fakeLlm()) return { logPermalink: `https://example.slack.com/archives/CLOG/p${r.id}` };
   const { connectSlackMcp } = await import("@quorum/slack/mcp-client");
   const { client, tools } = await connectSlackMcp(cfg.userToken());
+  console.log("[quorum-mcp] available tools:", Object.keys(tools).join(", "));
   try {
     // Adapt the live MCP tool surface to our SlackMcpTools shape.
     // Real tool keys are discovered from `tools` (e.g. tools["canvases.edit"]).
@@ -37,6 +38,9 @@ export async function fileRecordStep(r: DecisionRecord): Promise<{ logPermalink?
 
 function callTool(tools: Record<string, any>, names: string[], args: unknown): Promise<any> {
   const key = names.find((n) => tools[n]);
-  if (!key) throw new Error(`MCP tool not found: tried ${names.join(", ")}`);
+  if (!key)
+    throw new Error(
+      `MCP tool not found: tried ${names.join(", ")}; available: ${Object.keys(tools).join(", ")}`,
+    );
   return tools[key].execute ? tools[key].execute(args) : tools[key](args);
 }
