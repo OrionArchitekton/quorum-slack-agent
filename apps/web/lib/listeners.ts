@@ -154,6 +154,24 @@ export function registerListeners(app: App) {
     });
   });
 
+  // @Quorum mention → grounded Q&A, replied in-thread
+  app.event("app_mention", async ({ event, say }) => {
+    const e = event as any;
+    const question = (e.text ?? "").replace(/<@[^>]+>\s*/g, "").trim();
+    if (!question) return;
+    try {
+      const run = await start(qaWorkflow, [question]);
+      const answer = await run.returnValue;
+      const last = (answer as any[]).at(-1);
+      await say({
+        thread_ts: e.thread_ts ?? e.ts,
+        text: typeof last?.content === "string" ? last.content : "See above for the answer.",
+      });
+    } catch {
+      await say({ thread_ts: e.thread_ts ?? e.ts, text: "Sorry — I couldn't pull that up." });
+    }
+  });
+
   // Slash /decisions → grounded Q&A
   app.command("/decisions", async ({ command, ack, respond }) => {
     await ack();
