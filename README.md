@@ -131,7 +131,7 @@ See [docs/DEMO.md](docs/DEMO.md) for the full deploy + demo runbook. In short:
    unset in production.
 2. Apply [slack-manifest.json](slack-manifest.json) to your Slack app and reinstall to the sandbox.
    The manifest is already pointed at `https://quorum-slack-agent.vercel.app`; if you deploy to a
-   different domain, update the three request URLs (`slash_commands[].url`,
+   different domain, update the three request URLs (`features.slash_commands[].url`,
    `settings.event_subscriptions.request_url`, `settings.interactivity.request_url`) to match.
 3. Enable **Agents & AI Apps → Model Context Protocol** on the app (`is_mcp_enabled`).
 4. Create the Decision Log Canvas + `#decision-log` channel once; put their ids in env.
