@@ -28,6 +28,13 @@ function messageText(msg: unknown): string {
   return fromParts(m.content) || fromParts(m.parts);
 }
 
+/** Convert common GitHub-flavored markdown to Slack mrkdwn (bold + headings). */
+function toSlackMrkdwn(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "*$1*") // **bold** -> *bold*
+    .replace(/^#{1,6}\s*(.+)$/gm, "*$1*"); // ## Heading -> *Heading*
+}
+
 // Per-thread dedup so we never post more than one nudge per thread (single-sandbox demo only).
 const nudgedThreads = new Set<string>();
 
@@ -186,7 +193,7 @@ export function registerListeners(app: App) {
       const last = (answer as unknown[]).at(-1);
       await say({
         thread_ts: e.thread_ts ?? e.ts,
-        text: messageText(last) || "I couldn't find a recorded decision for that.",
+        text: toSlackMrkdwn(messageText(last)) || "I couldn't find a recorded decision for that.",
       });
     } catch {
       await say({ thread_ts: e.thread_ts ?? e.ts, text: "Sorry — I couldn't pull that up." });
@@ -203,7 +210,7 @@ export function registerListeners(app: App) {
       const text = messageText(last);
       await respond({
         response_type: "in_channel",
-        text: text || "I couldn't find a recorded decision for that.",
+        text: toSlackMrkdwn(text) || "I couldn't find a recorded decision for that.",
       });
     } catch {
       await respond({
