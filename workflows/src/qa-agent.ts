@@ -2,7 +2,8 @@ import { DurableAgent } from "@workflow/ai/agent";
 import { getWritable } from "workflow";
 import { z } from "zod";
 import type { UIMessageChunk } from "ai";
-import { searchRecordsStep, searchWorkspaceStep } from "./steps/search.js";
+import { searchRecordsStep } from "./steps/search.js";
+import { mcpSearchStep } from "./steps/mcpSearch.js";
 import { formatCitations } from "@quorum/shared";
 import { cfg } from "./env.js";
 
@@ -17,14 +18,16 @@ export async function qaWorkflow(question: string) {
     ].join(" "),
     tools: {
       searchRecords: {
+        // Real-Time Search API (assistant.search.context) over curated records.
         description: "Search curated Decision Records in #decision-log.",
         inputSchema: z.object({ query: z.string() }),
         execute: async ({ query }: { query: string }) => searchRecordsStep(query),
       },
       searchWorkspace: {
-        description: "Semantic RTS search across the whole workspace for raw discussion.",
+        // Slack MCP server (slack_search_public_and_private) for broad workspace search.
+        description: "Search the whole workspace (incl. raw threads) via the Slack MCP server.",
         inputSchema: z.object({ query: z.string() }),
-        execute: async ({ query }: { query: string }) => searchWorkspaceStep(query),
+        execute: async ({ query }: { query: string }) => mcpSearchStep(query),
       },
     },
   });
