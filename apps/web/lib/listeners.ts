@@ -7,6 +7,27 @@ import type { App } from "@slack/bolt";
 
 let seq = Date.now() % 10000; // demo-grade monotonic id source; can collide across restarts (single-sandbox demo only)
 
+/**
+ * Extract plain text from an AI SDK / DurableAgent message whose `content` may be
+ * a string, an array of content parts ({type:"text", text}), or a `parts` array.
+ */
+function messageText(msg: unknown): string {
+  const m = msg as { content?: unknown; parts?: unknown };
+  if (!m) return "";
+  if (typeof m.content === "string") return m.content;
+  const fromParts = (arr: unknown): string =>
+    Array.isArray(arr)
+      ? arr
+          .filter((p): p is { type: string; text: string } => {
+            const x = p as { type?: string; text?: unknown };
+            return x?.type === "text" && typeof x.text === "string";
+          })
+          .map((p) => p.text)
+          .join("\n")
+      : "";
+  return fromParts(m.content) || fromParts(m.parts);
+}
+
 // Per-thread dedup so we never post more than one nudge per thread (single-sandbox demo only).
 const nudgedThreads = new Set<string>();
 
@@ -162,10 +183,10 @@ export function registerListeners(app: App) {
     try {
       const run = await start(qaWorkflow, [question]);
       const answer = await run.returnValue;
-      const last = (answer as any[]).at(-1);
+      const last = (answer as unknown[]).at(-1);
       await say({
         thread_ts: e.thread_ts ?? e.ts,
-        text: typeof last?.content === "string" ? last.content : "See above for the answer.",
+        text: messageText(last) || "I couldn't find a recorded decision for that.",
       });
     } catch {
       await say({ thread_ts: e.thread_ts ?? e.ts, text: "Sorry — I couldn't pull that up." });
@@ -178,10 +199,11 @@ export function registerListeners(app: App) {
     try {
       const run = await start(qaWorkflow, [command.text]);
       const answer = await run.returnValue;
-      const last = (answer as any[]).at(-1);
+      const last = (answer as unknown[]).at(-1);
+      const text = messageText(last);
       await respond({
         response_type: "in_channel",
-        text: typeof last?.content === "string" ? last.content : "See thread for the answer.",
+        text: text || "I couldn't find a recorded decision for that.",
       });
     } catch {
       await respond({
