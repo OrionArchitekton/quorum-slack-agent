@@ -29,8 +29,9 @@ flowchart TB
     end
 
     subgraph Ext["External APIs"]
-        MCP["Slack MCP server<br/>mcp.slack.com — Canvas + chat"]
-        RTS["Real-Time Search<br/>assistant.search.context"]
+        MCP["Slack MCP server<br/>slack_search_public_and_private"]
+        RTS["Real-Time Search API<br/>assistant.search.context"]
+        WEB["Slack Bot Web API<br/>canvases.edit + chat.postMessage"]
         LLM["AI Gateway<br/>(Claude via AI SDK v6)"]
     end
 
@@ -47,11 +48,14 @@ flowchart TB
     HOOK -. resumes .-> CAP
     CAP --> STEPS
     QA --> STEPS
-    STEPS -->|"file (in step, dynamic import)"| MCP
-    STEPS -->|"search"| RTS
+    STEPS -->|"file (Bot Web API)"| WEB
+    STEPS -->|"workspace search (MCP, in step)"| MCP
+    STEPS -->|"record search (RTS)"| RTS
     STEPS -->|"draft / classify"| LLM
-    MCP --> LOG
+    WEB --> LOG
 ```
+
+**Three required techs, each load-bearing:** Slack AI/**Agent** (`DurableAgent` + Assistant surface) · **MCP** (the Q&A agent searches the workspace via the Slack MCP server's `slack_search_public_and_private`) · **RTS** (`assistant.search.context` for curated record retrieval). Writes (Canvas + channel) use the Bot Web API, since the hosted MCP server is scope-gated to search for our token.
 
 ## Control-flow split (why hybrid)
 

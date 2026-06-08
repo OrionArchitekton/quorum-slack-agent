@@ -18,8 +18,10 @@ Quorum does — and it uses all three required hackathon technologies, each load
 | Tech | Where it's used |
 |---|---|
 | **Slack AI / Agent** | A Vercel `DurableAgent` answers `@Quorum` mentions and the `/decisions` slash command with grounded, cited Q&A |
-| **MCP server integration** | Files records to a Slack **Canvas** + `#decision-log` via the hosted Slack MCP server (`mcp.slack.com`) |
-| **Real-Time Search (RTS) API** | `assistant.search.context` grounds answers in fresh, permission-scoped Slack content with permalink citations |
+| **MCP server integration** | The Q&A `DurableAgent` searches the workspace via the hosted Slack MCP server (`mcp.slack.com`, `slack_search_public_and_private`), called inside a workflow step |
+| **Real-Time Search (RTS) API** | `assistant.search.context` retrieves curated Decision Records, permission-scoped to the asker, with permalink citations |
+
+Records are written (Canvas + `#decision-log`) via the Slack Bot Web API (`canvases.edit` + `chat.postMessage`), since the hosted MCP server is scope-gated to search for our token.
 
 Plus **Vercel Workflow** for durable human-in-the-loop: the approval step suspends for up to
 **7 days** at zero compute, then resumes exactly where it paused when someone clicks Approve.
@@ -37,9 +39,10 @@ Verified against the live deployment and the test suite:
   opens a modal to revise title / decision / rationale before approval; all three resume the durable
   workflow hook.
 - **Filing** — on approval the record is filed to a Slack Canvas and the `#decision-log` channel
-  through the hosted Slack MCP server.
+  via the Slack Bot Web API (`canvases.edit` + `chat.postMessage`).
 - **Grounded Q&A** — `@Quorum <question>` (in-thread) and `/decisions <question>` run a `DurableAgent`
-  that searches filed records first, then falls back to Slack Real-Time Search with permalink citations.
+  that searches curated records via RTS first, then the broader workspace via the Slack MCP server,
+  answering with permalink citations.
 - **Live deploy** — `GET /api/health` returns `{"ok":true,"service":"quorum",...}` (HTTP 200) at the
   URL above.
 
@@ -61,8 +64,8 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Hybrid by design:
 - **Capture pipeline** → deterministic `"use workflow"` (draft → durable approval hook → file).
   The approval step races `approvalHook.create({ token })` against `sleep("7d")`; whichever resolves
   first decides the outcome.
-- **Q&A** → `DurableAgent` with two tools: `searchRecords` (filed records first) and `searchWorkspace`
-  (RTS fallback).
+- **Q&A** → `DurableAgent` with two tools: `searchRecords` (curated records via RTS) and
+  `searchWorkspace` (broad workspace via the Slack MCP server).
 - **Storage** → Slack-native (Canvas + `#decision-log`). No external DB.
 
 Design and spike notes: [docs/superpowers/specs/2026-06-06-decision-memory-agent-design.md](docs/superpowers/specs/2026-06-06-decision-memory-agent-design.md),
