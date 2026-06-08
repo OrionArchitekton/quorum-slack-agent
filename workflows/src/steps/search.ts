@@ -8,7 +8,9 @@ function toCitations(msgs: RtsMessage[]): Citation[] {
 
 export async function searchRecordsStep(query: string): Promise<{ text: string; sources: Citation[] }> {
   "use step";
-  const r = await searchContext({ token: cfg.botToken(),
+  // Use the USER token: RTS assistant.search.context with a BOT token requires an
+  // action_token (only available from a live message event); the user token does not.
+  const r = await searchContext({ token: cfg.userToken(),
     query: `in:<#${cfg.logChannel()}> ${query}`, limit: 8 });
   return { text: r.messages.map((m) => m.content).join("\n---\n"), sources: toCitations(r.messages) };
 }
