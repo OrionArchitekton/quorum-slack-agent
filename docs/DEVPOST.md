@@ -5,6 +5,26 @@
 
 ---
 
+> ⚠️ **Devpost's own judging email (2026-06) says: don't paste AI-written descriptions** — judges
+> read hundreds and generic AI prose blurs together; "write it like you're telling a teammate why
+> you're proud of it." So the **narrative sections below are TALKING POINTS, not paste-ready copy** —
+> rewrite Inspiration / What it does / Accomplishments / Learned in your own voice. The parts safe to
+> use close-to-verbatim: the **Challenges** (specific real engineering), the **tech mapping**, the
+> **Built with** tags, and the **Links**. Also per that email: the project name is your call (AI
+> shouldn't name it) — "Quorum" is already deployed; keep or rename.
+
+## Talking points → write these in your own voice
+
+- **The pain (lead with this, name the workflow you're killing):** you decide something in a thread,
+  and a week later someone re-opens the settled question because nobody can find where it was decided.
+  You're killing "re-litigating decisions / digging through scrollback."
+- **The moment that sold you on it:** (your own example — a real time your team lost a decision.)
+- **Why it's not just another Slack chatbot:** it captures decision *provenance* (what/why/who/
+  supersedes) and makes it *retrievable*, grounded in live workspace context — not a chat wrapper.
+- **What you're proud of:** the durable approval that waits days then resumes; shipping the whole
+  loop end-to-end; making all three techs actually load-bearing (not bolted on).
+- **What surprised you:** (pick one real challenge below and say it in your words.)
+
 ## Inspiration
 
 Teams make their most important calls in Slack — which database, which vendor, the postmortem's
