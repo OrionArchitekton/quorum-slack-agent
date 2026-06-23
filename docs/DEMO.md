@@ -6,7 +6,7 @@
 
 1. **Deploy to Vercel** (region `iad1` — Vercel Workflow World requirement):
    ```bash
-   cd /home/orion/src/quorum
+   cd quorum
    vercel link            # select/create project "quorum"
    vercel deploy --prod   # or push to a connected git branch
    ```
