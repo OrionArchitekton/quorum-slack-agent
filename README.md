@@ -55,7 +55,7 @@ Verified against the live deployment and the test suite:
   live in memory and reset across restarts. Fine for one sandbox; not multi-instance safe.
 - **No external database.** Storage is Slack-native (Canvas + `#decision-log`). There is no separate
   persistence layer.
-- **No license file.** See [License](#license).
+- **License.** MIT — see [License](#license).
 
 ## Architecture
 
@@ -162,5 +162,4 @@ Independent runtime check after deploy: `curl https://<deploy>/api/health` → `
 
 ## License
 
-No license file is currently included, so no usage terms are granted. If you intend others to use
-or fork this repo, add a `LICENSE` (e.g. MIT).
+Licensed under the MIT License — see [`LICENSE`](LICENSE).
