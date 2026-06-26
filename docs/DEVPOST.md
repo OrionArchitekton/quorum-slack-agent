@@ -13,6 +13,20 @@
 > **Built with** tags, and the **Links**. Also per that email: the project name is your call (AI
 > shouldn't name it) — "Quorum" is already deployed; keep or rename.
 
+## Description opener (paste, then make it YOURS — swap in your real anecdote)
+
+> I built Quorum because teams keep re-deciding things they already settled. Someone asks "wait,
+> did we land on Postgres or Mongo?" and nobody can find the thread where it was decided — the call
+> is real, but it's buried in scrollback. Quorum watches for the moment a Slack conversation actually
+> *reaches* a decision, drafts a clean record of it, and waits for one person to hit Approve. Once
+> approved, it files that decision to a canvas and a `#decision-log` channel — and from then on you
+> just ask `/decisions what did we decide about X?` and get the answer back, with a link to exactly
+> where it happened. It's the institutional memory I always wished Slack had.
+
+*(Then paste "What it does", "How we built it", "Challenges", "Built with", and "Links" below —
+those are factual/specific and safe close to verbatim. The one edit that matters: swap the
+"Postgres or Mongo" line for a real decision your own team lost, so it's unmistakably your voice.)*
+
 ## Talking points → write these in your own voice
 
 - **The pain (lead with this, name the workflow you're killing):** you decide something in a thread,
