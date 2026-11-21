@@ -74,7 +74,7 @@ Design and spike notes: [docs/superpowers/specs/2026-06-06-decision-memory-agent
 
 ## Stack
 
-pnpm monorepo (`pnpm@9.12.0`) · `workflow@4.3.1` + `@workflow/ai` (`DurableAgent`) · Next.js 15.5.19
+pnpm monorepo (`pnpm@9.12.0`) · `workflow@4.3.1` + `@workflow/ai` (`DurableAgent`) · Next.js 15.5.29
 (App Router) + React 19 · `@slack/bolt` + `@vercel/slack-bolt` (`VercelReceiver`) · Vercel AI SDK v6
 (`ai`) + `@ai-sdk/mcp` + `@modelcontextprotocol/sdk` · zod v4 · vitest (+ `@workflow/vitest`) ·
 Vercel AI Gateway (Anthropic Claude Sonnet 4.5 / Haiku 4.5) · hosted Slack MCP (`mcp.slack.com`) +
