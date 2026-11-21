@@ -10,7 +10,7 @@
     "@quorum/workflows": "workspace:*",
     "@slack/bolt": "^4.7.3",
     "@vercel/slack-bolt": "^1.4.3",
-    "next": "15.5.19",
+    "next": "15.5.29",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "workflow": "4.3.1"
